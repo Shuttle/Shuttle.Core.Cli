@@ -1,155 +1,45 @@
-# Shuttle.Core.ServiceHost
+# Shuttle.Core.Cli
 
-Turns your console application into a Windows service.
+```
+PM> Install-Package Shuttle.Core.Autofac
+```
 
-A typical implementation would be as follows:
+Provides the `Arguments` class that provides access to your command-line interface arguments:
 
-~~~ c#
-using System;
-using System.Threading;
-using Shuttle.Core.Infrastructure;
+### Constructor
 
-namespace Shuttle.Core.ServiceHost.Server
-{
-    internal class Program
-    {
-        private static void Main()
-        {
-            ServiceHost.Run<TestHost>();
-        }
+``` c#
+public Arguments(params string[] commandLine)
+```
 
-        public class TestHost : IServiceHost, IThreadState
-        {
-            private readonly Thread _thread;
-            private volatile bool _active;
+The `commandLine` is parsed as arguments starting with `-`, `--` or `/` followed by the argument name then either `=` or `:` and then the argument value.
 
-            public TestHost()
-            {
-                _thread = new Thread(Worker);
-            }
+The following are valid arguments:
 
-            public void Start()
-            {
-                _active = true;
-                _thread.Start();
-            }
+```
+-name=value
+--name=value
+/name=value
+-name:value
+--name:value
+/name:value
+```
 
-            public void Stop()
-            {
-                _active = false;
-                _thread.Join(5000);
-            }
+The argument name and value may be *quoted* with either a single quote (`'`) or double quote (`"`).
 
-            public bool Active => _active;
+### Checking for values
 
-            private void Worker()
-            {
-                while (_active)
-                {
-                    Console.WriteLine($"[working] : {DateTime.Now:O}");
-                    ThreadSleep.While(1000, this);
-                }
-            }
-        }
-    }
-}
-~~~
+``` c#
+public bool Contains(string name)
+```
 
-Implement the `IServiceHost` interface if you need both `Start()` and `Stop()` methods; else `IServiceHostStart` for `Start()` and `IServiceHostStop` for `Stop()` although there would be little value in having only a `Stop()`.  If you do not need a `Stop()` method or you prefer using `IDisposable` to handle the destruction then you would go with only the `IServiceHostStart` interface.
+Returns `true` if the given argument `name` is found; else `false`.
 
-## Running the Service
+### Getting values
 
-The following methods are available to get this going on the `ServiceHost` class:
+``` c#
+public T Get<T>(string name)
+public T Get<T>(string name, T @default)
+```
 
-~~~ c#
-public static void Run<T>() where T : IServiceHostStart, new()
-public static void Run<T>(Action<IServiceConfiguration> configure) where T : IServiceHostStart, new()
-public static void Run(IServiceHostStart service)
-public static void Run(IServiceHostStart service, Action<IServiceConfiguration> configure)
-~~~
-
-The `IServiceConfiguration` allows you to configure the service from code.  Configuration supplied through code has the highest precedence.
-
-## Configuration Section
-
-You may also specify configuration using the following configuration which may, as all Shuttle configuration sections do, be grouped under a `shuttle` group.
-
-~~~ xml
-<configuration>
-  <configSections>
-    <section name="service" type="Shuttle.Core.ServiceHost.ServiceHostSection, Shuttle.Core.ServiceHost" />
-  </configSections>
-
-  <service
-    serviceName="test-service"
-    instance="one"
-    username="mr.resistor"
-    password="ohm"
-    startMode="Disabled" />
-</configuration>
-~~~
-
-## Command Line
-
-The following command-line arguments are available and can be viewed by running `{your-console}.exe /?`:
-
-~~~
-[/install [/serviceName]]	
-	- install the service
-		
-[/displayName]				
-	- friendly name for the installed service
-		
-[/description]				
-	- Description for the service
-		
-[/instance]					
-	- unique name of the instance you wish to install
-		
-[/startMode]			
-	- specifies that the service start mode (Boot, System, Automatic, Manual, Disabled)
-		
-[/username /password]
-	- username and password of the account to use for the service
-- or -
-	
-[/uninstall [/serviceName] [/instance]]	
-
-[/start]
-	- starts the service instance
-
-[/stop]
-	- stops the service instance
-~~~
-
-## Service Name
-
-If no `/serviceName` is specified the full name of the your console application along with the version number, e.g.:
-
-~~~
-Namespace.ConsoleApplication (1.0.0.0)
-~~~
-
-## Uninstall
-
-If you set the `/serviceName` and/or `/instance` during installation you will need to specify them when uninstalling as well, e.g.:
-
-~~~
-{your=console}.exe 
-	/uninstall 
-	/serviceName:"Shuttle.Application.Server" 
-	/instance:"Instance5"
-~~~
-
-## Example
-
-~~~
-{your=console}.exe 
-	/install 
-	/serviceName:"Shuttle.Application.Server" 
-	/displayName:"Shuttle server for the application"
-	/description:"Service to handle messages relating to the application." 
-	/username:"domain\hostuser"
-	/password:"p@ssw0rd!"
-~~~
-
+Returns the value of the given argument `name` as type `T`.  If the argument `name` cannot be found the value given as `@default` will be returned.  If not `@default` is specified an `InvalidOperationException` is thrown.
