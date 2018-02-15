@@ -1,7 +1,7 @@
 # Shuttle.Core.Cli
 
 ```
-PM> Install-Package Shuttle.Core.Autofac
+PM> Install-Package Shuttle.Core.Cli
 ```
 
 Provides the `Arguments` class that provides access to your command-line interface arguments:
