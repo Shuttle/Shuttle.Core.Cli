@@ -7,6 +7,19 @@ namespace Shuttle.Core.Cli.Tests
     public class ArgumentsFixture
     {
         [Test]
+        public void Should_not_be_able_to_add_a_duplicate_argument_definition_or_alias()
+        {
+            var arguments = new Arguments();
+
+            arguments.Add(new ArgumentDefinition("arg1", "a1"));
+
+            Assert.That(() => arguments.Add(new ArgumentDefinition("arg1")),
+                Throws.TypeOf<InvalidOperationException>());
+            Assert.That(() => arguments.Add(new ArgumentDefinition("arg2", "a1")),
+                Throws.TypeOf<InvalidOperationException>());
+        }
+
+        [Test]
         public void Should_be_able_to_parse_simple_arguments()
         {
             var arguments = new Arguments("-arg1:arg1value", "/arg2", "arg2value", "--enabled", "/threads=5");

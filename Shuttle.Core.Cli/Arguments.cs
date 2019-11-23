@@ -1,30 +1,36 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Linq;
 using System.Text.RegularExpressions;
+using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Cli
 {
     public class Arguments
     {
-        private readonly StringDictionary _parameters;
+        private readonly Dictionary<string, ArgumentDefinition> _argumentDefinitions =
+            new Dictionary<string, ArgumentDefinition>();
+
+        private readonly StringDictionary _arguments;
 
         private readonly Regex _remover = new Regex(@"^['""]?(.*?)['""]?$",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-        private readonly Regex _spliter = new Regex(@"^-{1,2}|^/|=|:",
+        private readonly Regex _splitter = new Regex(@"^-{1,2}|^/|=|:",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         public Arguments(params string[] commandLine)
         {
             CommandLine = commandLine;
 
-            _parameters = new StringDictionary();
+            _arguments = new StringDictionary();
 
             string parameter = null;
 
             foreach (var input in commandLine)
             {
-                var parts = _spliter.Split(input, 3);
+                var parts = _splitter.Split(input, 3);
 
                 switch (parts.Length)
                 {
@@ -32,11 +38,11 @@ namespace Shuttle.Core.Cli
                     {
                         if (parameter != null)
                         {
-                            if (!_parameters.ContainsKey(parameter))
+                            if (!_arguments.ContainsKey(parameter))
                             {
                                 parts[0] = _remover.Replace(parts[0], "$1");
 
-                                _parameters.Add(parameter.ToLower(), parts[0]);
+                                _arguments.Add(parameter.ToLower(), parts[0]);
                             }
 
                             parameter = null;
@@ -48,9 +54,9 @@ namespace Shuttle.Core.Cli
                     {
                         if (parameter != null)
                         {
-                            if (!_parameters.ContainsKey(parameter))
+                            if (!_arguments.ContainsKey(parameter))
                             {
-                                _parameters.Add(parameter.ToLower(), "true");
+                                _arguments.Add(parameter.ToLower(), "true");
                             }
                         }
 
@@ -62,19 +68,19 @@ namespace Shuttle.Core.Cli
                     {
                         if (parameter != null)
                         {
-                            if (!_parameters.ContainsKey(parameter))
+                            if (!_arguments.ContainsKey(parameter))
                             {
-                                _parameters.Add(parameter.ToLower(), "true");
+                                _arguments.Add(parameter.ToLower(), "true");
                             }
                         }
 
                         parameter = parts[1];
 
-                        if (!_parameters.ContainsKey(parameter))
+                        if (!_arguments.ContainsKey(parameter))
                         {
                             parts[2] = _remover.Replace(parts[2], "$1");
 
-                            _parameters.Add(parameter.ToLower(), parts[2]);
+                            _arguments.Add(parameter.ToLower(), parts[2]);
                         }
 
                         parameter = null;
@@ -89,45 +95,90 @@ namespace Shuttle.Core.Cli
                 return;
             }
 
-            if (!_parameters.ContainsKey(parameter))
+            if (!_arguments.ContainsKey(parameter))
             {
-                _parameters.Add(parameter.ToLower(), "true");
+                _arguments.Add(parameter.ToLower(), "true");
             }
         }
 
         public string[] CommandLine { get; }
 
-        public string this[string name] => _parameters[name];
+        public string this[string name] => _arguments[name];
 
         public T Get<T>(string name)
         {
-            if (!_parameters.ContainsKey(name.ToLower()))
+            var value = GetArgumentValue(name);
+
+            if (string.IsNullOrEmpty(value))
             {
                 throw new InvalidOperationException(
                     string.Format(Resources.MissingArgumentException, name));
             }
 
-            return ChangeType<T>(name);
+            return ChangeType<T>(value);
         }
 
-        private T ChangeType<T>(string name)
+        private string GetArgumentValue(string name)
         {
-            return (T) Convert.ChangeType(_parameters[name.ToLower()], typeof(T));
+            var key = name.ToLower();
+
+            if (_arguments.ContainsKey(key))
+            {
+                return _arguments[key];
+            }
+
+            if (!_argumentDefinitions.ContainsKey(key))
+            {
+                return string.Empty;
+            }
+
+            foreach (var alias in _argumentDefinitions[key].Aliases)
+            {
+                key = alias.ToLower();
+
+                if (_arguments.ContainsKey(key))
+                {
+                    return _arguments[key];
+                }
+            }
+
+            return string.Empty;
+        }
+
+        private static T ChangeType<T>(string value)
+        {
+            return (T) Convert.ChangeType(value, typeof(T));
         }
 
         public T Get<T>(string name, T @default)
         {
-            if (!_parameters.ContainsKey(name.ToLower()))
-            {
-                return @default;
-            }
+            var value = GetArgumentValue(name);
 
-            return ChangeType<T>(name);
+            return string.IsNullOrEmpty(value) ? @default : ChangeType<T>(value);
         }
 
         public bool Contains(string name)
         {
-            return _parameters.ContainsKey(name.ToLower());
+            return _arguments.ContainsKey(name.ToLower());
+        }
+
+        public Arguments Add(ArgumentDefinition definition)
+        {
+            Guard.AgainstNull(definition, nameof(definition));
+
+            var key = definition.Name.ToLower();
+
+            if (_argumentDefinitions.Any(existing =>
+                existing.Value.IsSatisfiedBy(key) ||
+                definition.Aliases.Any(alias => existing.Value.IsSatisfiedBy(alias))))
+            {
+                throw new InvalidOperationException(string.Format(Resources.DuplicateArgumentDefinitionException,
+                    definition.Name));
+            }
+
+            _argumentDefinitions.Add(key, definition);
+
+            return this;
         }
     }
 }
