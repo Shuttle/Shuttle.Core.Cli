@@ -23,7 +23,15 @@ namespace Shuttle.Core.Cli
         }
 
         public string Name { get; }
+        public bool IsRequired { get; private set; }
         public IEnumerable<string> Aliases => _aliases.AsReadOnly();
+
+        public ArgumentDefinition AsRequired()
+        {
+            IsRequired = true;
+
+            return this;
+        }
 
         public bool IsSatisfiedBy(string name)
         {

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using Shuttle.Core.Contract;
 
@@ -106,6 +105,21 @@ namespace Shuttle.Core.Cli
 
         public string this[string name] => _arguments[name];
 
+        public IEnumerable<ArgumentDefinition> ArgumentDefinitions => _argumentDefinitions.Values.ToList().AsReadOnly();
+
+        public Arguments Add(string key)
+        {
+            return Add(key, "true");
+        }
+
+        public Arguments Add(string key, string value)
+        {
+            _arguments.Remove(key);
+            _arguments.Add(key, value);
+
+            return this;
+        }
+
         public T Get<T>(string name)
         {
             var value = GetArgumentValue(name);
@@ -191,6 +205,32 @@ namespace Shuttle.Core.Cli
             return this;
         }
 
-        public IEnumerable<ArgumentDefinition> ArgumentDefinitions => _argumentDefinitions.Values.ToList().AsReadOnly();
+        public bool HasMissingValues()
+        {
+            foreach (var argumentDefinition in _argumentDefinitions.Values.Where(item => item.IsRequired))
+            {
+                var found = false;
+
+                foreach (string key in _arguments.Keys)
+                {
+                    if (argumentDefinition.IsSatisfiedBy(key))
+                    {
+                        found = true;
+                    }
+                }
+
+                if (!found)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public static Arguments FromCommandLine()
+        {
+            return new Arguments(Environment.GetCommandLineArgs());
+        }
     }
 }

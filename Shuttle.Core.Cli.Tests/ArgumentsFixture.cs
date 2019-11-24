@@ -48,5 +48,35 @@ namespace Shuttle.Core.Cli.Tests
             Assert.IsNull(arguments["bogus"]);
             Assert.Throws<InvalidOperationException>(() => arguments.Get<int>("bogus"));
         }
+
+        [Test]
+        public void Should_be_able_to_determine_whether_all_required_fields_are_present()
+        {
+            var arguments = new Arguments();
+
+            Assert.That(arguments.HasMissingValues(), Is.False);
+
+            var definition = new ArgumentDefinition("arg1");
+
+            arguments.Add(definition);
+
+            Assert.That(arguments.HasMissingValues(), Is.False);
+
+            definition.AsRequired();
+
+            Assert.That(arguments.HasMissingValues(), Is.True);
+
+            arguments.Add("arg1");
+
+            Assert.That(arguments.HasMissingValues(), Is.False);
+
+            arguments.Add(new ArgumentDefinition("arg2", "a2").AsRequired());
+
+            Assert.That(arguments.HasMissingValues(), Is.True);
+
+            arguments.Add("a2");
+
+            Assert.That(arguments.HasMissingValues(), Is.False);
+        }
     }
 }
