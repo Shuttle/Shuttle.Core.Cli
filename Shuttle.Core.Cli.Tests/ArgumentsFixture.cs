@@ -20,6 +20,18 @@ namespace Shuttle.Core.Cli.Tests
         }
 
         [Test]
+        public void Should_be_able_to_get_the_argument_using_an_alias()
+        {
+            var arguments = new Arguments("-a1:one", "/arg2=two");
+
+            arguments.Add(new ArgumentDefinition("arg1", "a1"));
+            arguments.Add(new ArgumentDefinition("arg2", "a2"));
+
+            Assert.That(arguments.Get<string>("arg1"), Is.EqualTo("one"));
+            Assert.That(arguments.Get<string>("a2"), Is.EqualTo("two"));
+        }
+
+        [Test]
         public void Should_be_able_to_parse_simple_arguments()
         {
             var arguments = new Arguments("-arg1:arg1value", "/arg2", "arg2value", "--enabled", "/threads=5");

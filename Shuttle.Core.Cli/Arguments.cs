@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using Shuttle.Core.Contract;
 
@@ -127,12 +128,21 @@ namespace Shuttle.Core.Cli
                 return _arguments[key];
             }
 
-            if (!_argumentDefinitions.ContainsKey(key))
+            if (!_argumentDefinitions.Any(pair => pair.Value.IsSatisfiedBy(name)))
             {
                 return string.Empty;
             }
 
-            foreach (var alias in _argumentDefinitions[key].Aliases)
+            var definition = _argumentDefinitions.First(pair => pair.Value.IsSatisfiedBy(name));
+
+            key = definition.Key;
+
+            if (_arguments.ContainsKey(key))
+            {
+                return _arguments[key];
+            }
+
+            foreach (var alias in definition.Value.Aliases)
             {
                 key = alias.ToLower();
 
@@ -180,5 +190,7 @@ namespace Shuttle.Core.Cli
 
             return this;
         }
+
+        public IEnumerable<ArgumentDefinition> ArgumentDefinitions => _argumentDefinitions.Values.ToList().AsReadOnly();
     }
 }

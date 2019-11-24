@@ -19,11 +19,11 @@ namespace Shuttle.Core.Cli.Tests
         }
 
         [Test]
-        public void Should_be_able_to_exclude_duplicate_aliases()
+        public void Should_be_able_to_add_duplicate_aliases()
         {
-            var definition = new ArgumentDefinition("arg1", "a1", "arg1", "a1", "n1").WithDescription("argument one");
+            var definition = new ArgumentDefinition("arg1", "a1", "arg1", "a1", "n1");
 
-            Assert.That(definition.GetHelp(), Is.EqualTo("-arg1|a1|n1 : argument one"));
+            Assert.That(definition.IsSatisfiedBy("a1"), Is.True);
         }
     }
 }

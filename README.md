@@ -43,3 +43,13 @@ public T Get<T>(string name, T @default)
 ```
 
 Returns the value of the given argument `name` as type `T`.  If the argument `name` cannot be found the value given as `@default` will be returned.  If not `@default` is specified an `InvalidOperationException` is thrown.
+
+### Argument definitions
+
+You can add `ArgumentDefinition` entries to an `Arguments` instance by using the following method:
+
+``` c#
+public Arguments Add(ArgumentDefinition definition)
+```
+
+Argument definitions must have unique keys and if aliases are used these too have to be unique across definitions.  Duplicate aliases within the same argument definition will be ignored.
