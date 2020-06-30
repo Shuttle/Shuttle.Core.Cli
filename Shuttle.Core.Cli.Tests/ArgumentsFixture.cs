@@ -27,6 +27,9 @@ namespace Shuttle.Core.Cli.Tests
             arguments.Add(new ArgumentDefinition("arg1", "a1"));
             arguments.Add(new ArgumentDefinition("arg2", "a2"));
 
+            Assert.That(arguments.Contains("arg1"), Is.True);
+            Assert.That(arguments.Contains("a2"), Is.True);
+
             Assert.That(arguments.Get<string>("arg1"), Is.EqualTo("one"));
             Assert.That(arguments.Get<string>("a2"), Is.EqualTo("two"));
         }

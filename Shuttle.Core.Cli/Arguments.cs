@@ -183,7 +183,38 @@ namespace Shuttle.Core.Cli
 
         public bool Contains(string name)
         {
-            return _arguments.ContainsKey(name.ToLower());
+            var key = name.ToLower();
+
+            if (_arguments.ContainsKey(key))
+            {
+                return true;
+            }
+
+            if (!_argumentDefinitions.Any(pair => pair.Value.IsSatisfiedBy(name)))
+            {
+                return false;
+            }
+
+            var definition = _argumentDefinitions.First(pair => pair.Value.IsSatisfiedBy(name));
+
+            key = definition.Key;
+
+            if (_arguments.ContainsKey(key))
+            {
+                return true;
+            }
+
+            foreach (var alias in definition.Value.Aliases)
+            {
+                key = alias.ToLower();
+
+                if (_arguments.ContainsKey(key))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public Arguments Add(ArgumentDefinition definition)
