@@ -8,7 +8,7 @@ Provides the `Arguments` class that provides access to your command-line interfa
 
 ### Constructor
 
-``` c#
+```cs
 public Arguments(params string[] commandLine)
 ```
 
@@ -16,7 +16,7 @@ The `commandLine` is parsed as arguments starting with `-`, `--` or `/` followed
 
 The following are valid arguments:
 
-```
+```batch
 -name=value
 --name=value
 /name=value
@@ -31,7 +31,7 @@ An `Arguments` instance may be constructed from the `Environment.GetCommandLineA
 
 ### Checking for values
 
-``` c#
+```cs
 public bool Contains(string name)
 ```
 
@@ -39,7 +39,7 @@ Returns `true` if the given argument `name` is found; else `false`.
 
 ### Getting values
 
-``` c#
+```cs
 public T Get<T>(string name)
 public T Get<T>(string name, T @default)
 ```
@@ -50,7 +50,7 @@ Returns the value of the given argument `name` as type `T`.  If the argument `na
 
 You can add `ArgumentDefinition` entries to an `Arguments` instance by using the following method:
 
-``` c#
+```cs
 public Arguments Add(ArgumentDefinition definition)
 ```
 
