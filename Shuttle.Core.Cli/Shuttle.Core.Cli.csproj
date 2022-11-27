@@ -6,10 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include=".build\package.msbuild" />
-    <None Include=".build\package.nuspec" />
-    <None Include=".build\Shuttle.MSBuild.dll" />
-    <None Include=".build\Shuttle.MSBuild.targets" />
+    <Compile Remove=".build\**" />
+    <EmbeddedResource Remove=".build\**" />
+    <None Remove=".build\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include=".package\AssemblyInfo.cs.template" />
     <None Include=".package\package.msbuild" />
     <None Include=".package\package.nuspec.template" />
@@ -18,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Shuttle.Core.Contract" Version="10.0.1" />
+    <PackageReference Include="Shuttle.Core.Contract" Version="10.1.2" />
   </ItemGroup>
 
   <ItemGroup>

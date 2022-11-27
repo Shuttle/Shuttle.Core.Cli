@@ -11,9 +11,7 @@ namespace Shuttle.Core.Cli
 
         public ArgumentDefinition(string name, params string[] aliases)
         {
-            Guard.AgainstNullOrEmptyString(name, nameof(name));
-
-            Name = name;
+            Name = Guard.AgainstNullOrEmptyString(name, nameof(name));
 
             if (aliases != null)
             {
@@ -35,6 +33,8 @@ namespace Shuttle.Core.Cli
 
         public bool IsSatisfiedBy(string name)
         {
+            Guard.AgainstNullOrEmptyString(name, nameof(name));
+
             return Name.Equals(name, StringComparison.InvariantCultureIgnoreCase) ||
                    _aliases.Any(item => item.Equals(name, StringComparison.InvariantCultureIgnoreCase));
         }

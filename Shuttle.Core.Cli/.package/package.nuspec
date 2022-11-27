@@ -3,7 +3,7 @@
 <package>
 	<metadata>
 		<id>Shuttle.Core.Cli</id>
-		<version>10.1.0</version>
+		<version>10.1.1</version>
 		<authors>Eben Roux</authors>
 		<owners>Eben Roux</owners>
 		<icon>images\logo.png</icon>
@@ -14,7 +14,7 @@
 		<copyright>Copyright (c) 2022, Eben Roux</copyright>
 		<tags>cli commandline</tags>
 		<dependencies>
-      <dependency id="Shuttle.Core.Contract" version="10.0.1" />
+      <dependency id="Shuttle.Core.Contract" version="10.1.2" />
 		</dependencies>
 	</metadata>
 	<files>
