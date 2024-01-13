@@ -14,7 +14,7 @@ using System.Runtime.InteropServices;
 #endif
 
 [assembly: AssemblyVersion("10.1.1.0")]
-[assembly: AssemblyCopyright("Copyright (c) 2022, Eben Roux")]
+[assembly: AssemblyCopyright("Copyright (c) 2024, Eben Roux")]
 [assembly: AssemblyProduct("Shuttle.Core.Cli")]
 [assembly: AssemblyCompany("Eben Roux")]
 [assembly: AssemblyConfiguration("Release")]
