@@ -3,40 +3,35 @@ using System.Collections.Generic;
 using System.Linq;
 using Shuttle.Core.Contract;
 
-namespace Shuttle.Core.Cli
+namespace Shuttle.Core.Cli;
+
+public class ArgumentDefinition
 {
-    public class ArgumentDefinition
+    private readonly List<string> _aliases = new();
+
+    public ArgumentDefinition(string name, params string[] aliases)
     {
-        private readonly List<string> _aliases = new List<string>();
+        Name = Guard.AgainstNullOrEmptyString(name, nameof(name));
 
-        public ArgumentDefinition(string name, params string[] aliases)
-        {
-            Name = Guard.AgainstNullOrEmptyString(name, nameof(name));
+        _aliases.AddRange(aliases.Where(item => !item.Equals(name, StringComparison.InvariantCultureIgnoreCase)).Distinct());
+    }
 
-            if (aliases != null)
-            {
-                _aliases.AddRange(aliases.Where(item => !item.Equals(name, StringComparison.InvariantCultureIgnoreCase))
-                    .Distinct());
-            }
-        }
+    public IEnumerable<string> Aliases => _aliases.AsReadOnly();
+    public bool IsRequired { get; private set; }
 
-        public string Name { get; }
-        public bool IsRequired { get; private set; }
-        public IEnumerable<string> Aliases => _aliases.AsReadOnly();
+    public string Name { get; }
 
-        public ArgumentDefinition AsRequired()
-        {
-            IsRequired = true;
+    public ArgumentDefinition AsRequired()
+    {
+        IsRequired = true;
 
-            return this;
-        }
+        return this;
+    }
 
-        public bool IsSatisfiedBy(string name)
-        {
-            Guard.AgainstNullOrEmptyString(name, nameof(name));
+    public bool IsSatisfiedBy(string name)
+    {
+        Guard.AgainstNullOrEmptyString(name, nameof(name));
 
-            return Name.Equals(name, StringComparison.InvariantCultureIgnoreCase) ||
-                   _aliases.Any(item => item.Equals(name, StringComparison.InvariantCultureIgnoreCase));
-        }
+        return Name.Equals(name, StringComparison.InvariantCultureIgnoreCase) || _aliases.Any(item => item.Equals(name, StringComparison.InvariantCultureIgnoreCase));
     }
 }
