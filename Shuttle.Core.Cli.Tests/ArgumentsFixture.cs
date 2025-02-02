@@ -13,10 +13,8 @@ namespace Shuttle.Core.Cli.Tests
 
             arguments.Add(new ArgumentDefinition("arg1", "a1"));
 
-            Assert.That(() => arguments.Add(new ArgumentDefinition("arg1")),
-                Throws.TypeOf<InvalidOperationException>());
-            Assert.That(() => arguments.Add(new ArgumentDefinition("arg2", "a1")),
-                Throws.TypeOf<InvalidOperationException>());
+            Assert.That(() => arguments.Add(new ArgumentDefinition("arg1")), Throws.TypeOf<InvalidOperationException>());
+            Assert.That(() => arguments.Add(new ArgumentDefinition("arg2", "a1")), Throws.TypeOf<InvalidOperationException>());
         }
 
         [Test]
@@ -39,16 +37,16 @@ namespace Shuttle.Core.Cli.Tests
         {
             var arguments = new Arguments("-arg1:arg1value", "/arg2", "arg2value", "--enabled", "/threads=5");
 
-            Assert.AreEqual("arg1value", arguments["arg1"]);
-            Assert.AreEqual("arg2value", arguments["arg2"]);
+            Assert.That(arguments["arg1"], Is.EqualTo("arg1value"));
+            Assert.That(arguments["arg2"], Is.EqualTo("arg2value"));
 
-            Assert.IsTrue(arguments.Get("enabled", false));
-            Assert.IsTrue(arguments.Get("disabled", true));
+            Assert.That(arguments.Get("enabled", false), Is.True);
+            Assert.That(arguments.Get("disabled", true), Is.True);
 
-            Assert.AreEqual(5, arguments.Get("threads", 5));
-            Assert.AreEqual("5", arguments["threads"]);
+            Assert.That(arguments.Get("threads", 5), Is.EqualTo(5));
+            Assert.That(arguments["threads"], Is.EqualTo("5"));
 
-            Assert.IsNull(arguments["bogus"]);
+            Assert.That(arguments["bogus"], Is.Null);
             Assert.Throws<InvalidOperationException>(() => arguments.Get<int>("bogus"));
         }
 

@@ -3,7 +3,7 @@
 <package>
 	<metadata>
 		<id>Shuttle.Core.Cli</id>
-		<version>10.1.1</version>
+		<version>20.0.0</version>
 		<authors>Eben Roux</authors>
 		<owners>Eben Roux</owners>
 		<icon>images\logo.png</icon>
@@ -11,10 +11,10 @@
 		<repository type="git" url="https://github.com/shuttle/Shuttle.Core.Cli.git" />
 		<projectUrl>https://github.com/shuttle/Shuttle.Core.Cli</projectUrl>
 		<description>Command line argument parser.</description>
-		<copyright>Copyright (c) 2024, Eben Roux</copyright>
+		<copyright>Copyright (c) 2025, Eben Roux</copyright>
 		<tags>cli commandline</tags>
 		<dependencies>
-      <dependency id="Shuttle.Core.Contract" version="11.1.0" />
+      <dependency id="Shuttle.Core.Contract" version="20.0.0" />
 		</dependencies>
 	</metadata>
 	<files>
